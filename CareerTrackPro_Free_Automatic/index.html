@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123047"><title>CareerTrack Pro</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--navy:#123047;--teal:#0f9d8a;--bg:#f4f7fa;--ink:#172b3a;--muted:#667987;--line:#e1e8ee}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:white;padding:22px max(18px,calc((100vw - 1180px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:21px;letter-spacing:.2px}.brand span{color:#67e0cb}.sub{font-size:13px;color:#d0dce4;margin-top:4px}
+main{max-width:1180px;margin:24px auto;padding:0 18px}.hero{display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:26px;margin:0 0 7px}.muted{color:var(--muted);font-size:14px}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer;background:var(--teal);color:white}.btn.secondary{background:#e7f5f2;color:#087c6e}.btn.dark{background:var(--navy)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}.stat,.panel,.job{background:white;border:1px solid var(--line);border-radius:15px;padding:16px;box-shadow:0 3px 12px #16364a08}.stat label{font-size:12px;color:var(--muted)}.stat strong{display:block;font-size:27px;margin-top:8px}
+.layout{display:grid;grid-template-columns:250px 1fr;gap:16px}.panel h2{font-size:17px;margin:0 0 13px}.filters label{display:block;font-size:12px;font-weight:700;margin:12px 0 6px}.filters input,.filters select,.search{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:white;color:var(--ink)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tab{border:1px solid var(--line);background:white;border-radius:9px;padding:9px 12px;cursor:pointer;color:var(--ink)}.tab.active{background:var(--navy);color:white}
+.job{margin-bottom:11px}.jobtop{display:flex;justify-content:space-between;gap:10px}.job h3{font-size:16px;margin:0 0 5px}.company{font-size:13px;color:var(--muted)}.chips{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.chip{font-size:11px;padding:5px 8px;border-radius:20px;background:#edf3f7;color:#375266}.chip.good{background:#e4f7ef;color:#14744f}.chip.warn{background:#fff3d9;color:#875d00}.jobfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.jobfoot a{color:#087f73;font-weight:700;font-size:13px}.jobfoot select{padding:8px;border:1px solid var(--line);border-radius:8px}.empty{padding:30px;text-align:center;color:var(--muted)}button:disabled{opacity:.65;cursor:wait}#liveStatus{line-height:1.4}
+footer{max-width:1180px;margin:18px auto;padding:0 18px 30px;color:var(--muted);font-size:12px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}h1{font-size:23px}.stat strong{font-size:23px}}
+</style>
+</head>
+<body>
+<header><div><div class="brand">CareerTrack <span>Pro</span></div><div class="sub">Your career search, organized.</div></div><button class="btn" id="addBtn">＋ Add a job</button></header>
+<main>
+<div class="hero"><div><h1>Your career dashboard</h1><div class="muted">B.Pharmacy • Fresher & entry-level opportunities • India</div></div><button class="btn secondary" id="exportBtn">Export applications CSV</button></div>
+<div class="stats">
+<div class="stat"><label>Jobs saved</label><strong id="savedCount">0</strong></div><div class="stat"><label>Applied</label><strong id="appliedCount">0</strong></div><div class="stat"><label>Interviews</label><strong id="interviewCount">0</strong></div><div class="stat"><label>New this session</label><strong id="newCount">0</strong></div>
+</div>
+<div class="layout">
+<aside class="panel filters"><h2>Find matching roles</h2>
+<label for="q">Search jobs</label><input id="q" placeholder="Role, company or keyword">
+<label for="role">Career area</label><select id="role"><option value="">All target roles</option><option>Clinical Data Management</option><option>Clinical Research</option><option>Pharmacovigilance</option><option>Regulatory Affairs</option><option>Medical Coding</option></select>
+<label for="city">Location</label><select id="city"><option value="">All locations</option><option>Hyderabad</option><option>Bengaluru</option><option>Chennai</option><option>Hindupur / Anantapur</option><option>Remote</option></select>
+<label for="level">Experience fit</label><select id="level"><option value="">All levels</option><option>Fresher-friendly</option><option>Experience required</option></select>
+<p class="muted">Your tracker stays in this browser. Live import checks one public, remote-focused source only; it is not a complete India pharma-job feed.</p>
+<button class="btn dark" id="resetBtn" style="width:100%">Reset filters</button>
+<button class="btn" onclick="removeSampleJobs()"
+style="width:100%;margin-top:10px">
+Remove Sample Jobs
+</button>
+</aside>
+<div style="grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 4px"><button class="btn" id="searchJobsBtn">Refresh live job listings</button><span id="liveStatus" class="muted" role="status">Automatic feed: waiting for the latest scheduled collection.</span></div>
+<section><div class="tabs"><button class="tab active" data-tab="discover">Discover</button><button class="tab" data-tab="saved">Saved</button><button class="tab" data-tab="applied">Applied</button><button class="tab" data-tab="interview">Interviews</button></div>
+<div id="jobList"></div></section>
+</div>
+</main>
+<footer>CareerTrack Pro • Live results depend on the configured source and browser access. Verify each vacancy on the employer's official careers page. Background refresh and push notifications are not included.</footer>
+<script>
+const jobSearches = [
+{
+area: "Clinical Data Management",
+keywords: '"Clinical Data Associate" OR "Clinical Data Management Trainee" OR "Clinical Data Coordinator"',
+locations: ["Hyderabad", "Bengaluru", "Chennai", "India"]
+},
+{
+area: "Clinical Research",
+keywords: '"Clinical Research Coordinator" OR "Clinical Trial Assistant" OR "Clinical Research Associate"',
+locations: ["Hyderabad", "Bengaluru", "Chennai", "India"]
+},
+{
+area: "Pharmacovigilance",
+keywords: '"Pharmacovigilance Associate" OR "Drug Safety Associate" OR "PV Trainee"',
+locations: ["Hyderabad", "Bengaluru", "Chennai", "India"]
+},
+{
+area: "Regulatory Affairs",
+keywords: '"Regulatory Affairs Associate" OR "Regulatory Affairs Trainee"',
+locations: ["Hyderabad", "Bengaluru", "Chennai", "India"]
+},
+{
+area: "Medical Coding",
+keywords: '"Medical Coder Trainee" OR "Medical Coding Fresher" OR "Junior Medical Coder"',
+locations: ["Hyderabad", "Bengaluru", "Chennai", "India"]
+}
+];
+
+function buildJobSearchLinks() {
+return jobSearches.flatMap(search =>
+search.locations.map(location => ({
+area: search.area,
+location,
+url: "https://www.google.com/search?q=" +
+encodeURIComponent(
+`site:careers.* ${search.keywords} ${location} jobs`
+),
+source: "Targeted job search"
+}))
+);
+}
+
+let jobs = JSON.parse(localStorage.getItem("ctp_jobs") || "[]");
+let tab="discover";let sessionNew=0;
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem("ctp_jobs",JSON.stringify(jobs));render()}
+function removeSampleJobs() {
+const before = jobs.length;
+
+jobs = jobs.filter(job => job.sample !== true);
+
+save();
+
+alert(
+"Removed " + (before - jobs.length) +
+" sample jobs. Your other saved jobs have been preserved."
+);
+}
+
+function counts(){$("savedCount").textContent=jobs.filter(j=>j.status==="Saved").length;$("appliedCount").textContent=jobs.filter(j=>["Applied","Assessment"].includes(j.status)).length;$("interviewCount").textContent=jobs.filter(j=>j.status==="Interview").length;$("newCount").textContent=sessionNew}
+function render(){counts();let q=$("q").value.toLowerCase(),role=$("role").value,city=$("city").value,level=$("level").value;
+let list=jobs.filter(j=>(!q||(j.title+" "+j.company+" "+j.area).toLowerCase().includes(q))&&(!role||j.area.includes(role))&&(!city||j.location===city)&&(!level||j.level===level));
+if(tab==="saved")list=list.filter(j=>j.status==="Saved");if(tab==="applied")list=list.filter(j=>["Applied","Assessment","Offer","Rejected"].includes(j.status));if(tab==="interview")list=list.filter(j=>j.status==="Interview");
+$("jobList").innerHTML=list.length?list.map(j=>`<article class="job"><div class="jobtop"><div><h3>${esc(j.title)}</h3><div class="company">${esc(j.company)} · ${esc(j.location)}</div></div><span class="chip ${j.sample?"warn":"good"}">${j.sample?"Example":(j.live?"Live · "+esc(j.source||"Source"):(j.source==="Manual"?"Added by you":esc(j.source||"Imported")))}</span></div><div class="chips"><span class="chip">${esc(j.area)}</span><span class="chip ${j.level==="Fresher-friendly"?"good":"warn"}">${esc(j.level)}</span><span class="chip">${esc(j.type||"Not specified")}</span></div><div class="jobfoot"><a href="${safeUrl(j.url)}" target="_blank" rel="noopener">Search / application link ↗</a><select aria-label="Application status" data-status="${j.id}">${["Saved","To Apply","Applied","Assessment","Interview","Offer","Rejected"].map(s=>`<option ${j.status===s?"selected":""}>${s}</option>`).join("")}</select><button class="tab" data-delete="${j.id}">Remove</button></div></article>`).join(""):'<div class="panel empty">No jobs match these filters. Try changing your search or add a job.</div>';
+document.querySelectorAll("[data-status]").forEach(el=>el.onchange=()=>{let j=jobs.find(x=>x.id==el.dataset.status);j.status=el.value;save()});
+document.querySelectorAll("[data-delete]").forEach(el=>el.onclick=()=>{jobs=jobs.filter(x=>x.id!=el.dataset.delete);save()});
+}
+function esc(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function safeUrl(s){try{let u=new URL(s);return ["http:","https:"].includes(u.protocol)?u.href:"#"}catch{return "#"}}
+["q","role","city","level"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",render));
+$("resetBtn").onclick=()=>{["q","role","city","level"].forEach(id=>$(id).value="");render()};
+const roleKeywords = {
+  "Clinical Data Management": /clinical data|clinical database|data management/i,
+  "Clinical Research": /clinical research|clinical trial|clinical study|research coordinator|trial assistant/i,
+  "Pharmacovigilance": /pharmacovigilance|drug safety|adverse event|medical safety/i,
+  "Regulatory Affairs": /regulatory affairs|regulatory submissions|regulatory specialist/i,
+  "Medical Coding": /medical coder|medical coding|clinical coding/i
+};
+
+function guessArea(text) {
+  for (const [area, pattern] of Object.entries(roleKeywords)) {
+    if (pattern.test(text)) return area;
+  }
+  return "";
+}
+
+function normalizeLocation(job) {
+  const raw = [job.candidate_required_location, job.location, job.job_type].filter(Boolean).join(" ");
+  if (/remote|anywhere|worldwide/i.test(raw)) return "Remote";
+  if (/hyderabad/i.test(raw)) return "Hyderabad";
+  if (/bengaluru|bangalore/i.test(raw)) return "Bengaluru";
+  if (/chennai/i.test(raw)) return "Chennai";
+  if (/hindupur|ananthapur/i.test(raw)) return "Hindupur / Anantapur";
+  return raw || "Remote";
+}
+
+function openSearchFallback() {
+  const selectedArea = $("role").value;
+  const selectedCity = $("city").value || "India";
+  const role = selectedArea || "clinical data management OR clinical research OR pharmacovigilance OR regulatory affairs OR medical coding";
+  const query = `(${role}) (fresher OR "entry level" OR trainee OR junior) ${selectedCity} official careers`;
+  window.open("https://www.google.com/search?q=" + encodeURIComponent(query), "_blank", "noopener,noreferrer");
+}
+
+async function refreshLiveJobs() {
+  // Load the generated feed committed by the scheduled GitHub Actions collector.
+  // Live API checks from the browser are kept as a fallback if the feed is unavailable.
+  try {
+    const feedResponse = await fetch("./data/jobs.json?ts=" + Date.now(), { cache: "no-store" });
+    if (feedResponse.ok) {
+      const feed = await feedResponse.json();
+      const feedJobs = Array.isArray(feed.jobs) ? feed.jobs : [];
+      let addedFromFeed = 0;
+      for (const item of feedJobs) {
+        const url = safeUrl(item.url);
+        if (url === "#") continue;
+        const existing = jobs.find(j => j.url && safeUrl(j.url) === url);
+        if (existing) {
+          existing.title = item.title || existing.title;
+          existing.company = item.company || existing.company;
+          existing.location = item.location || existing.location;
+          existing.area = item.area || existing.area;
+          existing.source = item.source || existing.source;
+          existing.live = true;
+          existing.postedDate = item.postedDate || existing.postedDate;
+          existing.discoveredAt = item.discoveredAt || existing.discoveredAt;
+        } else {
+          jobs.unshift({
+            ...item,
+            id: item.id || "feed-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+            status: "To Apply", sample: false, live: true
+          });
+          addedFromFeed++;
+        }
+      }
+      sessionNew += addedFromFeed;
+      save();
+      const collectedAt = feed.generatedAt ? new Date(feed.generatedAt).toLocaleString() : "unknown time";
+      $("liveStatus").textContent = `Scheduled feed loaded: ${feedJobs.length} listings; ${addedFromFeed} new to this browser. Last collection: ${collectedAt}.`;
+      return;
+    }
+  } catch (feedError) {
+    // Continue to the browser-side fallback below.
+  }
+
+  const status = $("liveStatus");
+  const button = $("searchJobsBtn");
+  button.disabled = true;
+  status.textContent = "Checking the live source…";
+  try {
+    // Public, remote-focused API. This is not a comprehensive India pharma job database.
+    const response = await fetch("https://remotive.com/api/remote-jobs?category=healthcare", {
+      headers: { "Accept": "application/json" }, cache: "no-store"
+    });
+    if (!response.ok) throw new Error("Source returned HTTP " + response.status);
+    const payload = await response.json();
+    const selectedArea = $("role").value;
+    const selectedCity = $("city").value;
+    const wanted = Object.entries(roleKeywords).filter(([area]) => !selectedArea || area === selectedArea);
+    const matches = (payload.jobs || []).filter(job => {
+      const text = [job.title, job.description, job.category, job.tags].flat().filter(Boolean).join(" ");
+      const areaMatch = wanted.some(([, pattern]) => pattern.test(text));
+      const locationText = [job.candidate_required_location, job.job_type].filter(Boolean).join(" ");
+      const location = normalizeLocation(job);
+      const locationMatch = !selectedCity
+        ? (/remote|worldwide|anywhere|india/i.test(locationText) || location === "Remote")
+        : selectedCity === "Remote"
+          ? /remote|worldwide|anywhere/i.test(locationText)
+          : location === selectedCity || /india/i.test(locationText);
+      const entryLevel = /junior|entry.level|trainee|associate|assistant|intern|fresher|graduate/i.test(text);
+      return areaMatch && locationMatch && entryLevel && job.url;
+    });
+
+    let added = 0, updated = 0;
+    for (const job of matches) {
+      const url = safeUrl(job.url);
+      if (url === "#") continue;
+      const title = String(job.title || "").trim();
+      const company = String(job.company_name || "Not specified").trim();
+      const text = [title, job.description, job.tags].flat().filter(Boolean).join(" ");
+      const area = guessArea(text) || selectedArea || "Clinical Research";
+      const location = normalizeLocation(job);
+      const existing = jobs.find(j => j.url && safeUrl(j.url) === url);
+      if (existing) {
+        existing.title = title || existing.title;
+        existing.company = company || existing.company;
+        existing.location = location;
+        existing.area = area;
+        existing.source = "Remotive";
+        existing.live = true;
+        existing.date = job.publication_date || existing.date;
+        updated++;
+      } else {
+        jobs.unshift({
+          id: "live-" + (job.id || Date.now() + "-" + Math.random().toString(36).slice(2, 8)),
+          title, company, location, area, level: "Fresher-friendly",
+          type: job.job_type || "Remote",
+          date: job.publication_date || new Date().toISOString().slice(0, 10),
+          url, source: "Remotive", status: "To Apply", sample: false, live: true
+        });
+        added++;
+      }
+    }
+    sessionNew += added;
+    save();
+    status.textContent = `Source checked: ${matches.length} matching listing(s); ${added} new, ${updated} updated. This source is remote-focused and may return no matches.`;
+    if (!matches.length) status.textContent += " Use the search fallback for broader employer career pages.";
+  } catch (error) {
+    status.textContent = "Scheduled feed is not available yet (the project may not be deployed or the collector has not run). Your saved jobs are safe; opening a targeted search.";
+    openSearchFallback();
+  } finally {
+    button.disabled = false;
+  }
+}
+$("searchJobsBtn").onclick = refreshLiveJobs;
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));render()});
+$("addBtn").onclick=()=>{let title=prompt("Job title?");if(!title)return;let company=prompt("Company name?")||"Not specified";let location=prompt("Location? (e.g. Hyderabad, Bengaluru, Chennai, Remote)")||"Remote";let area=prompt("Career area? (Clinical Data Management, Clinical Research, Pharmacovigilance, Regulatory Affairs, Medical Coding)")||"Clinical Research";let url=prompt("Official job/application URL (https://...)")||"";jobs.unshift({id:Date.now(),title,company,location,area,level:"Fresher-friendly",type:"Not specified",date:new Date().toISOString().slice(0,10),url,source:"Manual",status:"To Apply",sample:false});sessionNew++;save()};
+$("exportBtn").onclick=()=>{let rows=[["Title","Company","Location","Career area","Experience fit","Status","URL"],...jobs.map(j=>[j.title,j.company,j.location,j.area,j.level,j.status,j.url])];let csv=rows.map(r=>r.map(x=>'"'+String(x||"").replace(/"/g,'""')+'"').join(",")).join("\\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="careertrack-pro-applications.csv";a.click();URL.revokeObjectURL(a.href)};
+if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});render();
+// Try loading the latest scheduled feed automatically when the dashboard opens.
+refreshLiveJobs();
+</script>
+</body></html>
