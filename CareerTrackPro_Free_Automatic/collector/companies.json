@@ -1,23 +1,29 @@
 {
-  "instructions": "Add one object per employer. board_token/site_name must be the employer's real public ATS board slug. Empty token rows are skipped. Do not guess tokens.",
+  "instructions": "Public ATS boards configured for CareerTrack Pro. Additional employers can be added after their board identifiers are verified.",
   "companies": [
     {
-      "company": "Add Greenhouse employer here",
-      "platform": "greenhouse",
-      "board_token": "",
-      "category": "pharma/CRO/biotech"
-    },
-    {
-      "company": "Add Lever employer here",
+      "company": "Orca Bio",
       "platform": "lever",
-      "board_token": "",
-      "category": "pharma/CRO/biotech"
+      "board_token": "orcabiosystems",
+      "category": "biotech"
     },
     {
-      "company": "Add Ashby employer here",
+      "company": "Endpoint Clinical",
+      "platform": "lever",
+      "board_token": "endpointclinical",
+      "category": "clinical research technology"
+    },
+    {
+      "company": "Bicara Therapeutics",
       "platform": "ashby",
-      "board_token": "",
-      "category": "pharma/CRO/biotech"
+      "site_name": "bicara-therapeutics",
+      "category": "biotechnology"
+    },
+    {
+      "company": "Triomics",
+      "platform": "ashby",
+      "site_name": "triomics",
+      "category": "clinical research technology"
     }
   ]
 }
