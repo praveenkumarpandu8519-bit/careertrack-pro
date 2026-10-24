@@ -165,7 +165,12 @@ def main() -> int:
         key = job.get("url") or job.get("id")
         if key not in unique or job.get("discoveredAt", "") < unique[key].get("discoveredAt", ""):
             unique[key] = job
-    jobs = sorted(unique.values(), key=lambda j: (j.get("postedDate") or j.get("date") or "", j.get("discoveredAt") or ""), reverse=True)
+def sort_key(job):
+    posted = job.get("postedDate") or job.get("date") or ""
+    discovered = job.get("discoveredAt") or ""
+    return (str(posted), str(discovered))
+
+jobs = sorted(unique.values(), key=sort_key, reverse=True)
     result = {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "sourceSummary": summary,
