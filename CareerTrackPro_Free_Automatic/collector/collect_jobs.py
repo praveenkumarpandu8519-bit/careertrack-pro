@@ -170,7 +170,13 @@ def sort_key(job):
     discovered = job.get("discoveredAt") or ""
     return (str(posted), str(discovered))
 
-jobs = sorted(unique.values(), key=sort_key, reverse=True)
+    def sort_key(job):
+        posted = job.get("postedDate") or job.get("date") or ""
+        discovered = job.get("discoveredAt") or ""
+        return (str(posted), str(discovered))
+
+    jobs = sorted(unique.values(), key=sort_key, reverse=True)
+
     result = {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "sourceSummary": summary,
