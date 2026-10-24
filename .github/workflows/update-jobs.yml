@@ -1,7 +1,5 @@
-```yaml
 name: Update CareerTrack Pro Jobs
-
-on:
+'on':
   workflow_dispatch:
   schedule:
     - cron: "17 */6 * * *"
@@ -12,7 +10,6 @@ permissions:
 jobs:
   update-jobs:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,4 +31,3 @@ jobs:
           git add data/jobs.json
           git diff --cached --quiet || git commit -m "Update job listings"
           git push
-```
