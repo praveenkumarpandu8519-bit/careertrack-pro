@@ -1,11 +1,29 @@
 {
-  "generatedAt": "2026-10-24T07:09:10.801394+00:00",
-  "sourceSummary": {
-    "Add Greenhouse employer here": "skipped (configure company + valid board token/site name)",
-    "Add Lever employer here": "skipped (configure company + valid board token/site name)",
-    "Add Ashby employer here": "skipped (configure company + valid board token/site name)"
-  },
-  "scannedRelevantCount": 0,
-  "errors": [],
-  "jobs": []
+  "instructions": "Public ATS boards for CareerTrack Pro. Add only verified public board identifiers.",
+  "companies": [
+    {
+      "company": "Orca Bio",
+      "platform": "lever",
+      "board_token": "orcabiosystems",
+      "category": "biotech"
+    },
+    {
+      "company": "Endpoint Clinical",
+      "platform": "lever",
+      "board_token": "endpointclinical",
+      "category": "clinical research technology"
+    },
+    {
+      "company": "Bicara Therapeutics",
+      "platform": "ashby",
+      "site_name": "bicara-therapeutics",
+      "category": "biotechnology"
+    },
+    {
+      "company": "Triomics",
+      "platform": "ashby",
+      "site_name": "triomics",
+      "category": "clinical research technology"
+    }
+  ]
 }
