@@ -1,5 +1,11 @@
 {
-  "generatedAt": null,
-  "sourceSummary": {},
+  "generatedAt": "2026-10-24T07:09:10.801394+00:00",
+  "sourceSummary": {
+    "Add Greenhouse employer here": "skipped (configure company + valid board token/site name)",
+    "Add Lever employer here": "skipped (configure company + valid board token/site name)",
+    "Add Ashby employer here": "skipped (configure company + valid board token/site name)"
+  },
+  "scannedRelevantCount": 0,
+  "errors": [],
   "jobs": []
 }
